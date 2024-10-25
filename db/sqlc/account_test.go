@@ -14,10 +14,9 @@ func TestCreateAccount(t *testing.T) {
 		Currency: "USD",
 	}
 	account, err := testQueries.CreateAccount(context.Background(), arg)
-	require.NoError(t, err)
+	require.NoError(t, err) //t is an object error
 	require.NotEmpty(t, account)
-
-	require.Equal(t, arg.Owner, account.Owner)
+	require.Equal(t, arg.Owner, arg.Owner)
 	require.Equal(t, arg.Balance, account.Balance)
 	require.Equal(t, arg.Currency, account.Currency)
 

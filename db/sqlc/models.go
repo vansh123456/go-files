@@ -6,60 +6,15 @@ package db
 
 import (
 	"database/sql"
-	"database/sql/driver"
-	"fmt"
 	"time"
 )
 
-type Currency string
-
-const (
-	CurrencyUSD Currency = "USD"
-	CurrencyEUR Currency = "EUR"
-)
-
-func (e *Currency) Scan(src interface{}) error {
-	switch s := src.(type) {
-	case []byte:
-		*e = Currency(s)
-	case string:
-		*e = Currency(s)
-	default:
-		return fmt.Errorf("unsupported scan type for Currency: %T", src)
-	}
-	return nil
-}
-
-type NullCurrency struct {
-	Currency Currency
-	Valid    bool // Valid is true if Currency is not NULL
-}
-
-// Scan implements the Scanner interface.
-func (ns *NullCurrency) Scan(value interface{}) error {
-	if value == nil {
-		ns.Currency, ns.Valid = "", false
-		return nil
-	}
-	ns.Valid = true
-	return ns.Currency.Scan(value)
-}
-
-// Value implements the driver Valuer interface.
-func (ns NullCurrency) Value() (driver.Value, error) {
-	if !ns.Valid {
-		return nil, nil
-	}
-	return string(ns.Currency), nil
-}
-
 type Account struct {
-	ID          int64
-	Owner       sql.NullString
-	Balance     sql.NullInt64
-	Currency    sql.NullString
-	CreatedAt   sql.NullTime
-	CountryCode sql.NullInt32
+	ID        int64
+	Owner     string
+	Balance   int64
+	Currency  string
+	CreatedAt time.Time
 }
 
 type Entry struct {
