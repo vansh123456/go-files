@@ -2,12 +2,9 @@ package db
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"os"
 	"testing"
-
-	_ "github.com/lib/pq"
 )
 
 const (
@@ -19,7 +16,6 @@ var testQueries *Queries
 
 func TestMain(m *testing.M) {
 	conn, err := sql.Open(dbDriver, dbSource)
-	fmt.Print(conn)
 	if err != nil {
 		log.Fatal("cannot connect to db", err)
 	}

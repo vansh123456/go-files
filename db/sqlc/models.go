@@ -5,10 +5,10 @@
 package db
 
 import (
+	"database/sql"
 	"database/sql/driver"
 	"fmt"
-
-	"github.com/jackc/pgx/v5/pgtype"
+	"time"
 )
 
 type Currency string
@@ -55,18 +55,18 @@ func (ns NullCurrency) Value() (driver.Value, error) {
 
 type Account struct {
 	ID          int64
-	Owner       pgtype.Text
-	Balance     pgtype.Int8
-	Currency    pgtype.Text
-	CreatedAt   pgtype.Timestamptz
-	CountryCode pgtype.Int4
+	Owner       sql.NullString
+	Balance     sql.NullInt64
+	Currency    sql.NullString
+	CreatedAt   sql.NullTime
+	CountryCode sql.NullInt32
 }
 
 type Entry struct {
 	ID        int64
-	AccountID pgtype.Int8
+	AccountID sql.NullInt64
 	Amount    int64
-	CreatedAt pgtype.Timestamptz
+	CreatedAt time.Time
 }
 
 type Transfer struct {
@@ -74,5 +74,5 @@ type Transfer struct {
 	FromAccountID int64
 	ToAccountID   int64
 	Amount        int64
-	CreatedAt     pgtype.Timestamptz
+	CreatedAt     time.Time
 }
