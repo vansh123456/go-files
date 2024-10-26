@@ -8,7 +8,7 @@ import (
 	"github.com/vansh123456/simplebank/util"
 )
 
-func TestCreateAccount(t *testing.T) {
+func createRandomAccount(t *testing.T) {
 	arg := CreateAccountParams{
 		Owner:    util.RandomOwner(),
 		Balance:  util.RandomMoney(),
@@ -23,4 +23,8 @@ func TestCreateAccount(t *testing.T) {
 
 	require.NotZero(t, account.ID)
 	require.NotZero(t, account.CreatedAt)
+}
+func TestCreateAccount(t *testing.T) {
+	//create account
+	createRandomAccount(t)
 }
