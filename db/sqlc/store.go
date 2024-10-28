@@ -58,29 +58,37 @@ type TransferTxResult struct {
 	ToEntry     Entry    `json:"to_entry"`
 }
 
-// func (store *Store) TransferTx(ctx context.Context,arg TransferTxParams) (TransferTxResult,error) {
-// 	var  result TransferTxResult
+func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error) {
+	var result TransferTxResult
 
-// 	err := store.execTX(ctx,func(q *Queries) error {
-// 		var err error
+	err := store.execTX(ctx, func(q *Queries) error {
+		var err error
 
-// 		result.Transfer,err = q.//IMPLEMENT LIST OF OTHER CREATE ACCOUNT AND TRANSFER FIRST(ctx,CreateTransferParam {
-// 			FromAccountID: arg.FromAccountID,
-// 			ToAccountID: arg.ToAccountID,
-// 			Amount: arg.Amount,
-// 		})
-// 		if err != nil {
-// 			return err
-// 		}
+		result.Transfer, err = q.CreateTransfer(ctx, CreateTransferParams{
+			FromAccountID: arg.FromAccountID,
+			ToAccountID:   arg.ToAccountID,
+			Amount:        arg.Amount,
+		})
+		if err != nil {
+			return err
+		}
 
-// 		result.FromEntry,err = q.CreateEntry(ctx,CreateEntryParams {
-// 			AccountID: arg.FromAccountID,
-// 			Amount: -arg.Amount,
-// 		})
-// 		if err != nil {
-// 			return err
-// 		}
-// 		return nil
-// 	})
-// 	return result,err
-// }
+		result.FromEntry, err = q.CreateEntry(ctx, CreateEntryParams{
+			AccountID: arg.FromAccountID,
+			Amount:    -arg.Amount,
+		})
+		if err != nil {
+			return err
+		}
+
+		result.ToEntry, err = q.CreateEntry(ctx, CreateEntryParams{
+			AccountID: arg.ToAccountID,
+			Amount:    arg.Amount,
+		})
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	return result, err
+}
