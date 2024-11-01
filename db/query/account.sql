@@ -15,7 +15,7 @@ SELECT * FROM accounts
 -- name: GetAccountForUpdate :one
 SELECT * FROM accounts
 WHERE id = $1 LIMIT 1
-FOR NO KEY UPDATE;
+FOR UPDATE;
 
 -- name: ListAccounts :many
 SELECT * FROM accounts
