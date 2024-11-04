@@ -98,42 +98,36 @@ func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (Trans
 		// here we are doing ki firstly the smaller ID account will be made to perform the transaction first
 		if arg.FromAccountID < arg.ToAccountID {
 			fmt.Println("add account balance:update and transfer 1")
-			result.FromAccount, err = q.AddAcountBalance(ctx, AddAcountBalanceParams{
-				ID:     arg.FromAccountID,
-				Amount: -arg.Amount, //- cause money is moving out from this account
-			})
-			if err != nil {
-				return err
-			}
-			fmt.Println("add account balance:update and transfer 2")
-			result.ToAccount, err = q.AddAcountBalance(ctx, AddAcountBalanceParams{
-				ID:     arg.ToAccountID,
-				Amount: arg.Amount,
-			})
-			if err != nil {
-				return err
-			}
+			//first wali be executed first then to_account next
+			result.FromAccount, result.ToAccount, err = addMoney(ctx, q, arg.FromAccountID, -arg.Amount, arg.ToAccountID, arg.Amount)
 		} else {
 			//if the ID is reversed we do the updates in the reversed order :)
 			fmt.Println("add account balance:update and transfer 2")
-			result.ToAccount, err = q.AddAcountBalance(ctx, AddAcountBalanceParams{
-				ID:     arg.ToAccountID,
-				Amount: arg.Amount,
-			})
-			if err != nil {
-				return err
-			}
-
-			fmt.Println("add account balance:update and transfer 1")
-			result.FromAccount, err = q.AddAcountBalance(ctx, AddAcountBalanceParams{
-				ID:     arg.FromAccountID,
-				Amount: -arg.Amount, //- cause money is moving out from this account
-			})
-			if err != nil {
-				return err
-			}
+			result.ToAccount, result.FromAccount, err = addMoney(ctx, q, arg.ToAccountID, arg.Amount, arg.FromAccountID, -arg.Amount)
 		}
 		return nil
 	})
 	return result, err
+}
+func addMoney(
+	ctx context.Context,
+	q *Queries,
+	accountID1 int64,
+	amount1 int64,
+	accountID2 int64,
+	amount2 int64,
+) (account1 Account, account2 Account, err error) {
+	account1, err = q.AddAcountBalance(ctx, AddAcountBalanceParams{
+		ID:     accountID1,
+		Amount: amount1,
+	})
+	if err != nil {
+		return
+	}
+
+	account2, err = q.AddAcountBalance(ctx, AddAcountBalanceParams{
+		ID:     accountID2,
+		Amount: amount2,
+	})
+	return
 }
