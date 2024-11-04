@@ -93,23 +93,46 @@ func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (Trans
 			return err
 		}
 		//update account ba;lances:
-		fmt.Println("add account balance:update and transfer 1")
-		result.FromAccount, err = q.AddAcountBalance(ctx, AddAcountBalanceParams{
-			ID:     arg.FromAccountID,
-			Amount: -arg.Amount, //- cause money is moving out from this account
-		})
-		if err != nil {
-			return err
-		}
-		fmt.Println("add account balance:update and transfer 2")
-		result.ToAccount, err = q.AddAcountBalance(ctx, AddAcountBalanceParams{
-			ID:     arg.ToAccountID,
-			Amount: arg.Amount,
-		})
-		if err != nil {
-			return err
-		}
 
+		//here we are using this if check to avoid deadlock
+		// here we are doing ki firstly the smaller ID account will be made to perform the transaction first
+		if arg.FromAccountID < arg.ToAccountID {
+			fmt.Println("add account balance:update and transfer 1")
+			result.FromAccount, err = q.AddAcountBalance(ctx, AddAcountBalanceParams{
+				ID:     arg.FromAccountID,
+				Amount: -arg.Amount, //- cause money is moving out from this account
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println("add account balance:update and transfer 2")
+			result.ToAccount, err = q.AddAcountBalance(ctx, AddAcountBalanceParams{
+				ID:     arg.ToAccountID,
+				Amount: arg.Amount,
+			})
+			if err != nil {
+				return err
+			}
+		} else {
+			//if the ID is reversed we do the updates in the reversed order :)
+			fmt.Println("add account balance:update and transfer 2")
+			result.ToAccount, err = q.AddAcountBalance(ctx, AddAcountBalanceParams{
+				ID:     arg.ToAccountID,
+				Amount: arg.Amount,
+			})
+			if err != nil {
+				return err
+			}
+
+			fmt.Println("add account balance:update and transfer 1")
+			result.FromAccount, err = q.AddAcountBalance(ctx, AddAcountBalanceParams{
+				ID:     arg.FromAccountID,
+				Amount: -arg.Amount, //- cause money is moving out from this account
+			})
+			if err != nil {
+				return err
+			}
+		}
 		return nil
 	})
 	return result, err
